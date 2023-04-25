@@ -1,0 +1,108 @@
+<p-toast></p-toast>
+<div class="card mt-3">
+    <div class="d-flex justify-content-between my-2 py-2">
+        <button (click)="openGroupModalForCreate(groupModal)" class="btn btn-primary">Add Group</button>
+        <button (click)="saveAllGroups()" class="btn btn-success">Save</button>
+    </div>
+    <p-treeTable [value]="groups" [scrollable]="true" [loading]="loading" (onNodeExpand)="onNodeExpand($event)"
+        [tableStyle]="{'min-width':'50rem'}">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Arabic Name</th>
+                <th>English Name</th>
+                <th>Can View</th>
+                <th>Can Add</th>
+                <th>Can Edit</th>
+                <th>Can Delete</th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+            <tr [ttRow]="rowNode">
+                <td>
+                    <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                    {{ rowData.englishName }}
+                </td>
+                <td>{{ rowData.arabicName }}</td>
+                <td>
+                    <p-checkbox *ngIf="rowData.isPage" [(ngModel)]="rowData.canView" [binary]="true"
+                        inputId="canView"></p-checkbox>
+                </td>
+                <td>
+                    <p-checkbox *ngIf="rowData.isPage" [(ngModel)]="rowData.canAdd" [binary]="true"
+                        inputId="canAdd"></p-checkbox>
+                </td>
+                <td>
+                    <p-checkbox *ngIf="rowData.isPage" [(ngModel)]="rowData.canEdit" [binary]="true"
+                        inputId="canEdit"></p-checkbox>
+                </td>
+                <td>
+                    <p-checkbox *ngIf="rowData.isPage" [(ngModel)]="rowData.canDelete" [binary]="true"
+                        inputId="canDelete"></p-checkbox>
+                </td>
+                <td>
+                    <div *ngIf="!rowData.isPage" class="d-flex justify-content-center my-2 py-2">
+                        <button (click)="openGroupModalForEdit(groupModal, rowData ,$event)" class="btn btn-sm btn-primary mx-1">Edit</button>
+                        <div class="mx-1">
+                            <p-confirmPopup></p-confirmPopup>
+                            <button (click)="confirm($event,rowData)" class="btn btn-sm btn-danger mx-1">Delete</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-treeTable>
+    <div class="text-center pb-5 mt-3" *ngIf="!loading && groups.length === 0">
+        <p style="font-size: 1.5rem; color: #b5b5c3">There are no Groups yet !</p>
+    </div>
+</div>
+
+<ng-template #groupModal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title text-dark text-bold-300">
+            {{ isEditMode ? "Edit Group" : "Add Group" }}
+        </h4>
+        <button type="button" class="close" aria-label="Close" (click)="d()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form [formGroup]="groupForm" class="needs-validation">
+            <div class="row">
+                <div class="col-lg-6 form-group">
+                    <label for="regionName">English Name</label>
+                    <input type="text" class="form-control" formControlName="englishName" id="englishName" [ngClass]="{
+                   'is-valid' : submitted &&  !f['englishName'].invalid,
+                   'is-invalid' : submitted &&  f['englishName'].invalid
+                   }" placeholder="English Name" />
+
+                    <div *ngIf="submitted && (f['englishName'].errors?.['required'] || f['englishName'].invalid)" class="text-danger">
+                        This Is Required
+                    </div>
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label for="regionName">Arabic Name</label>
+                    <input type="text" class="form-control" formControlName="arabicName" id="arabicName" [ngClass]="{
+                   'is-valid' : submitted &&  !f['arabicName']?.invalid,
+                   'is-invalid' : submitted &&  f['arabicName']?.invalid
+                   }" placeholder="Arabic Name" />
+
+                    <div *ngIf="submitted && (f['arabicName']?.errors?.['required'] || f['arabicName'].invalid)" class="text-danger">
+                        This Is Required
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <div class="d-flex justify-content-end">
+            <button type="button" (click)="d()" class="btn btn-light  mb-0 mx-2">
+                Close
+            </button>
+            <button type="submit" [disabled]="loading" (click)="onGroupFormSubmitted()"
+                class="btn btn-success mb-0 mt-0 mx-2">
+                {{isEditMode ? "Update" : "Save" }}
+            </button>
+        </div>
+    </div>
+</ng-template>
